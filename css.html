@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive CSS Clamp Calculator</title>
+    <style>
+        /* Core styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 40px;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .input-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .input-group {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+        }
+
+        .input-group:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        label,
+        .unit {
+            font-weight: 600;
+            color: #6c757d;
+        }
+
+        .input-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        input[type="number"],
+        select {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .calculate-btn {
+            display: block;
+            margin: 0 auto;
+            max-width: 300px;
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .results {
+            margin-top: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+
+        .result-value {
+            font-family: 'Courier New', monospace;
+            background: #f1f3f4;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            word-break: break-all;
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 12px;
+            cursor: pointer;
+            opacity: 0;
+        }
+
+        .result-item:hover .copy-btn {
+            opacity: 1;
+        }
+
+        .demo-box {
+            background: #667eea;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Responsive CSS Clamp Calculator</h1>
+        <div class="input-section">
+            <div class="input-group">
+                <h3>Viewport Settings</h3>
+                <div class="input-row">
+                    <label for="minViewport">Min Viewport</label>
+                    <input type="number" id="minViewport" value="320">
+                    <span class="unit">px</span>
+                </div>
+                <div class="input-row">
+                    <label for="maxViewport">Max Viewport</label>
+                    <input type="number" id="maxViewport" value="1440">
+                    <span class="unit">px</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <h3>Base Value</h3>
+                <div class="input-row">
+                    <label for="baseValue">Design Value</label>
+                    <input type="number" id="baseValue" value="100">
+                    <span class="unit">px</span>
+                </div>
+                <div class="input-row">
+                    <label for="baseViewport">Design Width</label>
+                    <input type="number" id="baseViewport" value="1440">
+                    <span class="unit">px</span>
+                </div>
+            </div>
+        </div>
+
+        <button class="calculate-btn" onclick="calculateClamp()">Calculate</button>
+
+        <div class="results" id="results" style="display: none;">
+            <h3>Results</h3>
+            <div class="result-item">
+                <div class="result-value" id="clampResult"></div>
+            </div>
+            <div class="demo-box" id="demoBox">Watch this box padding update live</div>
+        </div>
+    </div>
+
+    <script>
+        function calculateClamp() {
+            const minVp = +document.getElementById('minViewport').value;
+            const maxVp = +document.getElementById('maxViewport').value;
+            const designValue = +document.getElementById('baseValue').value;
+            const designWidth = +document.getElementById('baseViewport').value;
+
+            const vw = (designValue / designWidth) * 100;
+            const minCalc = minVp * (vw / 100);
+            const maxCalc = maxVp * (vw / 100);
+
+            let minSafe = Math.max(minCalc, designValue * 0.3);
+
+            const clampStr = `clamp(${minSafe.toFixed(2)}px, ${vw.toFixed(2)}vw, ${maxCalc.toFixed(2)}px)`;
+
+            document.getElementById('clampResult').innerHTML = clampStr +
+                `<button class='copy-btn' onclick="copyToClipboard('${clampStr}')">Copy</button>`;
+
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('demoBox').style.padding = clampStr;
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => alert('Copied: ' + text));
+        }
+    </script>
+</body>
+
+</html>
