@@ -1,224 +1,302 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Responsive CSS Clamp Calculator</title>
-    <style>
-        /* Core styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clamp Calculator</title>
+  <style>
+    :root {
+      --bg-light: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+      --bg-dark: #121212;
+      --text-light: #1f1f1f;
+      --text-dark: #f1f1f1;
+      --card-light: rgba(255, 255, 255, 0.9);
+      --card-dark: rgba(40, 40, 60, 0.9);
+      --border-light: #e0e0e0;
+      --border-dark: #444;
+      --input-bg-light: #f8f9fa;
+      --input-bg-dark: #2a2a3a;
+      --shadow-light: 0 10px 30px rgba(0, 0, 0, 0.1);
+      --shadow-dark: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
 
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
+    [data-theme='light'] {
+      --bg: var(--bg-light);
+      --text: var(--text-light);
+      --card: var(--card-light);
+      --border: var(--border-light);
+      --input-bg: var(--input-bg-light);
+      --shadow: var(--shadow-light);
+    }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        }
+    [data-theme='dark'] {
+      --bg: var(--bg-dark);
+      --text: var(--text-dark);
+      --card: var(--card-dark);
+      --border: var(--border-dark);
+      --input-bg: var(--input-bg-dark);
+      --shadow: var(--shadow-dark);
+    }
 
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 40px;
-            font-size: 2.5rem;
-            font-weight: 700;
-        }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        .input-section {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin-bottom: 40px;
-        }
+    html,
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+    }
 
-        .input-group {
-            background: #f8f9fa;
-            padding: 25px;
-            border-radius: 15px;
-            border: 2px solid #e9ecef;
-        }
+    body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
-        .input-group:hover {
-            border-color: #667eea;
-            transform: translateY(-2px);
-        }
+    .dark-toggle {
+      position: fixed;
+      top: 20px;
+      right: 30px;
+      font-size: 22px;
+      padding: 6px 12px;
+      border-radius: 30px;
+      border: none;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      z-index: 100;
+    }
 
-        label,
-        .unit {
-            font-weight: 600;
-            color: #6c757d;
-        }
+    .container {
+      width: 100%;
+      max-width: 900px;
+      background: var(--card);
+      border-radius: 20px;
+      padding: 40px 30px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      margin-top: 60px;
+    }
 
-        .input-row {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
+    h1 {
+      text-align: center;
+      font-size: 2.4rem;
+      margin-bottom: 30px;
+    }
 
-        input[type="number"],
-        select {
-            flex: 1;
-            padding: 12px 16px;
-            border: 2px solid #dee2e6;
-            border-radius: 8px;
-            font-size: 16px;
-        }
+    .input-section {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
 
-        input:focus,
-        select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
+    .input-group {
+      background: var(--input-bg);
+      padding: 20px;
+      border-radius: 15px;
+      border: 2px solid var(--border);
+      transition: border-color 0.3s ease;
+    }
 
-        .calculate-btn {
-            display: block;
-            margin: 0 auto;
-            max-width: 300px;
-            padding: 15px 30px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            border-radius: 50px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-        }
+    .input-group:hover {
+      border-color: #667eea;
+    }
 
-        .calculate-btn:hover {
-            transform: translateY(-2px);
-        }
+    h3 {
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+      color: var(--text);
+    }
 
-        .results {
-            margin-top: 40px;
-            padding: 30px;
-            background: #f8f9fa;
-            border-radius: 15px;
-            border-left: 5px solid #667eea;
-        }
+    .input-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
 
-        .result-value {
-            font-family: 'Courier New', monospace;
-            background: #f1f3f4;
-            padding: 12px;
-            border-radius: 6px;
-            font-size: 14px;
-            word-break: break-all;
-            position: relative;
-        }
+    label {
+      font-weight: 600;
+      font-size: 14px;
+      width: 100px;
+    }
 
-        .copy-btn {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 4px 8px;
-            font-size: 12px;
-            cursor: pointer;
-            opacity: 0;
-        }
+    input[type='number'] {
+      flex: 1;
+      padding: 10px 14px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: white;
+    }
 
-        .result-item:hover .copy-btn {
-            opacity: 1;
-        }
+    [data-theme='dark'] input {
+      background: #333;
+      color: #fff;
+    }
 
-        .demo-box {
-            background: #667eea;
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-            text-align: center;
-            font-weight: 600;
-        }
-    </style>
+    .calculate-btn {
+      display: block;
+      margin: 0 auto;
+      padding: 14px 30px;
+      border-radius: 50px;
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      font-weight: bold;
+      font-size: 18px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .calculate-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .results {
+      margin-top: 30px;
+      background: var(--input-bg);
+      padding: 25px;
+      border-radius: 15px;
+      border-left: 5px solid #667eea;
+    }
+
+    .result-value {
+      font-family: 'Courier New', monospace;
+      background: #e0e0e0;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      position: relative;
+      color: #000;
+    }
+
+    [data-theme='dark'] .result-value {
+      background: #444;
+      color: #fff;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 12px;
+      cursor: pointer;
+      opacity: 0;
+    }
+
+    .result-item:hover .copy-btn {
+      opacity: 1;
+    }
+
+    .demo-box {
+      background: #667eea;
+      color: white;
+      padding: 18px;
+      border-radius: 10px;
+      margin-top: 20px;
+      text-align: center;
+      font-weight: 600;
+    }
+  </style>
 </head>
 
 <body>
-    <div class="container">
-        <h1>Responsive CSS Clamp Calculator</h1>
-        <div class="input-section">
-            <div class="input-group">
-                <h3>Viewport Settings</h3>
-                <div class="input-row">
-                    <label for="minViewport">Min Viewport</label>
-                    <input type="number" id="minViewport" value="320">
-                    <span class="unit">px</span>
-                </div>
-                <div class="input-row">
-                    <label for="maxViewport">Max Viewport</label>
-                    <input type="number" id="maxViewport" value="1440">
-                    <span class="unit">px</span>
-                </div>
-            </div>
-            <div class="input-group">
-                <h3>Base Value</h3>
-                <div class="input-row">
-                    <label for="baseValue">Design Value</label>
-                    <input type="number" id="baseValue" value="100">
-                    <span class="unit">px</span>
-                </div>
-                <div class="input-row">
-                    <label for="baseViewport">Design Width</label>
-                    <input type="number" id="baseViewport" value="1440">
-                    <span class="unit">px</span>
-                </div>
-            </div>
+  <button class="dark-toggle" onclick="toggleTheme()">🌙</button>
+  <div class="container">
+    <h1>Responsive CSS Clamp Calculator</h1>
+    <div class="input-section">
+      <div class="input-group">
+        <h3>Viewport Settings</h3>
+        <div class="input-row">
+          <label for="minViewport">Min Viewport</label>
+          <input type="number" id="minViewport" value="320" />
         </div>
-
-        <button class="calculate-btn" onclick="calculateClamp()">Calculate</button>
-
-        <div class="results" id="results" style="display: none;">
-            <h3>Results</h3>
-            <div class="result-item">
-                <div class="result-value" id="clampResult"></div>
-            </div>
-            <div class="demo-box" id="demoBox">Watch this box padding update live</div>
+        <div class="input-row">
+          <label for="maxViewport">Max Viewport</label>
+          <input type="number" id="maxViewport" value="1440" />
         </div>
+      </div>
+      <div class="input-group">
+        <h3>Base Value</h3>
+        <div class="input-row">
+          <label for="baseValue">Design Value</label>
+          <input type="number" id="baseValue" value="100" />
+        </div>
+        <div class="input-row">
+          <label for="baseViewport">Design Width</label>
+          <input type="number" id="baseViewport" value="1440" />
+        </div>
+      </div>
     </div>
 
-    <script>
-        function calculateClamp() {
-            const minVp = +document.getElementById('minViewport').value;
-            const maxVp = +document.getElementById('maxViewport').value;
-            const designValue = +document.getElementById('baseValue').value;
-            const designWidth = +document.getElementById('baseViewport').value;
+    <button class="calculate-btn" onclick="calculateClamp()">Calculate</button>
 
-            const vw = (designValue / designWidth) * 100;
-            const minCalc = minVp * (vw / 100);
-            const maxCalc = maxVp * (vw / 100);
+    <div class="results" id="results" style="display: none;">
+      <h3>Result</h3>
+      <div class="result-item">
+        <div class="result-value" id="clampResult"></div>
+      </div>
+      <div class="demo-box" id="demoBox">Watch this box padding update live</div>
+    </div>
+  </div>
 
-            let minSafe = Math.max(minCalc, designValue * 0.3);
+  <script>
+    function calculateClamp() {
+      const minVp = +document.getElementById('minViewport').value;
+      const maxVp = +document.getElementById('maxViewport').value;
+      const designValue = +document.getElementById('baseValue').value;
+      const designWidth = +document.getElementById('baseViewport').value;
 
-            const clampStr = `clamp(${minSafe.toFixed(2)}px, ${vw.toFixed(2)}vw, ${maxCalc.toFixed(2)}px)`;
+      const vw = (designValue / designWidth) * 100;
+      const minCalc = minVp * (vw / 100);
+      const maxCalc = maxVp * (vw / 100);
+      let minSafe = Math.max(minCalc, designValue * 0.3);
 
-            document.getElementById('clampResult').innerHTML = clampStr +
-                `<button class='copy-btn' onclick="copyToClipboard('${clampStr}')">Copy</button>`;
+      const clampStr = `clamp(${minSafe.toFixed(2)}px,${vw.toFixed(2)}vw,${maxCalc.toFixed(2)}px)`;
 
-            document.getElementById('results').style.display = 'block';
-            document.getElementById('demoBox').style.padding = clampStr;
-        }
+      document.getElementById('clampResult').innerHTML =
+        clampStr + `<button class='copy-btn' onclick="copyToClipboard('${clampStr}')">Copy</button>`;
 
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => alert('Copied: ' + text));
-        }
-    </script>
+      document.getElementById('results').style.display = 'block';
+      document.getElementById('demoBox').style.padding = clampStr;
+    }
+
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => alert('Copied: ' + text));
+    }
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      const current = html.getAttribute('data-theme');
+      const newTheme = current === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      document.querySelector('.dark-toggle').textContent = newTheme === 'dark' ? '☀️' : '🌙';
+    }
+
+    (function () {
+      const saved = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', saved);
+      document.querySelector('.dark-toggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+    })();
+  </script>
 </body>
 
 </html>
