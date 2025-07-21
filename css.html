@@ -4,53 +4,64 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Clamp Generator</title>
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    .copy-btn {
-      @apply bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 transition ml-4;
-    }
-  </style>
+  <!-- Tailwind Dark Mode Config -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+    };
+  </script>
 </head>
-<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-6">
+<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-start px-4 py-8 font-sans">
 
-  <div class="w-full max-w-2xl bg-gray-800 rounded-2xl shadow-xl p-6">
-    <h1 class="text-3xl font-bold mb-6 text-center text-white">Clamp Generator</h1>
+  <!-- Header -->
+  <header class="w-full max-w-3xl flex justify-between items-center mb-8">
+    <h1 class="text-3xl font-bold">Clamp Generator</h1>
+    <button id="toggleDark" class="text-sm px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded">
+      Toggle Light/Dark
+    </button>
+  </header>
 
-    <form onsubmit="event.preventDefault(); calculateClamp()" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <!-- Clamp Form -->
+  <div class="w-full max-w-3xl bg-gray-800 p-6 rounded-xl shadow-lg space-y-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
-        <label class="block mb-1 font-medium text-sm">Min Viewport Width (px)</label>
-        <input type="number" id="minViewport" value="375" required class="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-      </div>
-      <div>
-        <label class="block mb-1 font-medium text-sm">Max Viewport Width (px)</label>
-        <input type="number" id="maxViewport" value="1920" required class="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <label class="block mb-1 font-medium">Min Viewport (px)</label>
+        <input id="minViewport" type="number" placeholder="e.g. 320" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600" />
       </div>
       <div>
-        <label class="block mb-1 font-medium text-sm">Design Element Size (px)</label>
-        <input type="number" id="baseValue" value="48" required class="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <label class="block mb-1 font-medium">Max Viewport (px)</label>
+        <input id="maxViewport" type="number" placeholder="e.g. 1920" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600" />
       </div>
       <div>
-        <label class="block mb-1 font-medium text-sm">Design Width (px)</label>
-        <input type="number" id="baseViewport" value="1280" required class="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <label class="block mb-1 font-medium">Design Value (px)</label>
+        <input id="baseValue" type="number" placeholder="e.g. 32" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600" />
       </div>
-      <div class="md:col-span-2 flex justify-center mt-4">
-        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg transition">Generate Clamp</button>
-      </div>
-    </form>
-
-    <div id="results" class="mt-6 hidden">
-      <div class="text-center">
-        <p class="text-lg font-medium">Clamp Result:</p>
-        <div id="clampResult" class="mt-2 bg-gray-700 text-green-400 p-3 rounded-lg font-mono inline-block" dir="ltr"></div>
-      </div>
-
-      <div id="demoBox" class="mt-6 text-center text-lg font-bold bg-gray-700 py-4 px-2 rounded-lg">
-        Demo Box with Clamp Padding
+      <div>
+        <label class="block mb-1 font-medium">Design Width (px)</label>
+        <input id="baseViewport" type="number" value="1280" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600" />
       </div>
     </div>
+    <button onclick="calculateClamp()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 rounded">
+      Generate Clamp
+    </button>
+  </div>
+
+  <!-- Result -->
+  <div id="results" class="w-full max-w-3xl mt-6 hidden bg-gray-800 p-6 rounded-xl shadow-md text-center">
+    <h2 class="text-xl font-bold mb-4">Clamp Result</h2>
+    <div id="clampResult" class="bg-gray-700 p-4 rounded text-lg break-all"></div>
+    <div id="demoBox" class="mt-6 bg-indigo-600 text-white font-bold">Responsive Text Padding</div>
   </div>
 
   <script>
+    // Default dark mode toggle
+    const toggleBtn = document.getElementById("toggleDark");
+    toggleBtn.addEventListener("click", () => {
+      document.documentElement.classList.toggle("dark");
+    });
+
     function calculateClamp() {
       const minVp = +document.getElementById('minViewport').value;
       const maxVp = +document.getElementById('maxViewport').value;
@@ -60,13 +71,14 @@
       const vw = (designValue / designWidth) * 100;
       const minCalc = minVp * (vw / 100);
       const maxCalc = maxVp * (vw / 100);
+
       let minSafe = Math.max(minCalc, designValue * 0.3);
 
       const clampStr = `clamp(${minSafe.toFixed(2)}px,${vw.toFixed(2)}vw,${maxCalc.toFixed(2)}px)`;
 
       document.getElementById('clampResult').innerHTML = `
-        ${clampStr}
-        <button class="copy-btn" onclick="copyToClipboard('${clampStr}')">Copy</button>
+        <code>${clampStr}</code>
+        <button onclick="copyToClipboard('${clampStr}')" class="ml-4 bg-green-600 px-4 py-1 rounded hover:bg-green-500">Copy</button>
       `;
 
       document.getElementById('results').style.display = 'block';
@@ -75,9 +87,8 @@
 
     function copyToClipboard(text) {
       navigator.clipboard.writeText(text);
-      alert("Clamp value copied!");
+      alert('Copied to clipboard!');
     }
   </script>
-
 </body>
 </html>
